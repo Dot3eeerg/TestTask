@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+  labels:
+    app: myApp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myApp
+  template:
+    metadata:
+      labels:
+        app: myApp
+    spec:
+      containers:
+      - name: myApp
+      image: app-image
+      ports:
+      - containerPort: 8080
+        name: app
+      resources:
+        limits: # Максимальные ресурсы при старте
+          memory: "256Mi"
+          cpu: "1"
+        requests: # Минимальные ресурсы
+          memory: "128Mi"
+          cpu: "0.1"
+      livenessProbe:              # Проба, проверяющая живой ли контейнер
+        httpGet:                  # Проверка происходит с помощью HTTP запроса
+          path: /healthz          #
+          port: 8080              # Порт, на котором обрабатываются запросы
+        initialDelaySeconds: 10   # Время, через которое начнётся проверка после старта
+        periodSeconds: 10         #
+      readinessProbe:             # Проба, проверяющая готовность контейнера. Пока он не инициализируется, ему нельзя будет принимать трафик
+        httpGet:                  #
+          path: /healthz          #
+          port: 8080              #
+        initialDelaySeconds: 10   # Максимальное время, которое под не будет обрабывать запросы
+        periodSeconds: 5          #
+      affinity:
+        podAntiAffinity: # Распределение подов по разным нодам
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - myApp
+            topologyKey: "kubernetes.io/hostname" # Определение области для установки пода
+  strategy:
+    type: RollingUpdate # Обновляем старые поды на новые, при этом новые поды будут запущены на узлах, с достаточным количеством ресурсов
+      maxSurge: 1       # При обновлении может создаваться только 1 под
+      maxUnavaliable: 0 # Старые поды не убираются, пока новый не будет готов

@@ -1,7 +1,7 @@
 ﻿using TestTask.Interfaces;
 using TestTask.Models;
 
-namespace Tests;
+namespace Tests.FigureTests;
 
 public class TriangleTests
 {

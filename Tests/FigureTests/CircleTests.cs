@@ -1,9 +1,7 @@
 using TestTask.Interfaces;
 using TestTask.Models;
-using TestTask.Services;
-using Xunit.Sdk;
 
-namespace Tests;
+namespace Tests.FigureTests;
 
 public class CircleTests
 {
